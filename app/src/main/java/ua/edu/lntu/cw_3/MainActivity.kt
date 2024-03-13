@@ -77,7 +77,7 @@ fun MainWindowTopBar() {
             )
             Icon(
                 imageVector = Icons.Filled.Android,
-                contentDescription = "android",
+                contentDescription = "Android",
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .size(48.dp),
@@ -154,6 +154,7 @@ fun AnnotatedString.onLinkClick(offset: Int, onClick: (String) -> Unit) {
     }
 }
 
+///Change uiMode to UI_MODE_NIGHT_YES for dark theme
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
 fun GreetingPreview() {
