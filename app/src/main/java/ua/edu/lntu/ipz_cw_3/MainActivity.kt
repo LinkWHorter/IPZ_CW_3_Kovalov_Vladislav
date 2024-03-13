@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ua.edu.lntu.ipz_cw_3.model.DayRepo
 import ua.edu.lntu.ipz_cw_3.ui.theme.IPZ_CW_3_Kovalov_VladislavTheme
 
 class MainActivity : ComponentActivity() {
@@ -57,30 +58,106 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainWindow( modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                //.background(color = colorBackTile)
-                .align(alignment = Alignment.CenterHorizontally)
-                .padding(top = 22.dp, bottom = 23.dp, start = 14.dp, end = 16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(bottom = 0.dp, top = 250.dp, end = 0.dp, start = 0.dp)
-            ) {
-
-            }
+fun MainWindow() {
+    Scaffold(topBar = { MainWindowTopBar() }, bottomBar = { MainWindowBottomBar() }) {
+        DayScreenList(days = DayRepo.days, modifier = Modifier.padding(it))
     }
 }
 
-@Preview(showBackground = true)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainWindowTopBar() {
+    CenterAlignedTopAppBar(title = {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(id = R.string.days_30),
+                style = MaterialTheme.typography.displayLarge
+            )
+            Icon(
+                imageVector = Icons.Filled.Android,
+                contentDescription = "android",
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .size(48.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+    })
+}
+
+@Composable
+fun MainWindowBottomBar(modifier: Modifier = Modifier) {
+    BottomAppBar(modifier = modifier) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            LinkText(
+                text = R.string.made,
+                highlight = R.string.jetpack,
+                link = R.string.jetpack_link,
+                modifier = Modifier.padding(2.dp)
+            )
+            LinkText(
+                text = R.string.images_by,
+                highlight = R.string.name,
+                link = R.string.image_link,
+                modifier = Modifier.padding(2.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun LinkText(
+    @StringRes text: Int,
+    @StringRes highlight: Int,
+    @StringRes link: Int,
+    modifier: Modifier = Modifier
+) {
+    val ctx = LocalContext.current
+    val annotatedString = buildAnnotatedString {
+        withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurface)) {
+            append(stringResource(id = text))
+            append(' ')
+        }
+        withStyle(
+            style = SpanStyle(
+                color = MaterialTheme.colorScheme.tertiary,
+                fontWeight = FontWeight.Bold,
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
+            appendLink(stringResource(id = highlight), stringResource(id = link))
+        }
+
+    }
+    ClickableText(text = annotatedString, onClick = { it ->
+        annotatedString.onLinkClick(it) {
+            ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(it)))
+        }
+    }, style = MaterialTheme.typography.titleMedium, modifier = modifier)
+}
+
+fun AnnotatedString.Builder.appendLink(linkText: String, linkUrl: String) {
+    pushStringAnnotation(tag = linkUrl, annotation = linkUrl)
+    append(linkText)
+    pop()
+}
+
+fun AnnotatedString.onLinkClick(offset: Int, onClick: (String) -> Unit) {
+    getStringAnnotations(start = offset, end = offset).firstOrNull()?.let {
+        onClick(it.item)
+    }
+}
+
+@Preview(showBackground = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
 fun GreetingPreview() {
     IPZ_CW_3_Kovalov_VladislavTheme {
-        Greeting("Android")
+        MainWindow()
     }
 }
